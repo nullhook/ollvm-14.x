@@ -128,7 +128,8 @@ bool Flattening::flatten(Function *f) {
 
   // load = new LoadInst(switchVar, "switchVar", loopEntry);
 
-  Value* val = cast<Value>(switchVar);
+  // Value* val = cast<Value>(switchVar);
+  Value* val = switchVar;
   load = new LoadInst(Type::getInt32Ty(f->getContext()), val, "switchVar",loopEntry);
 
   // Move first BB on top

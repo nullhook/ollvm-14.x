@@ -4,6 +4,7 @@ add_llvm_library( LLVMObfuscation MODULE BUILDTREE_ONLY
   SplitBasicBlocks.cpp
   Substitution.cpp
   Flattening.cpp
+  BogusControlFlow.cpp
   Foo.cpp
 
   DEPENDS
