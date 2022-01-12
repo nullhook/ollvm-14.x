@@ -117,7 +117,8 @@ namespace {
     static char ID; // Pass identification
     bool flag;
     BogusControlFlow() : FunctionPass(ID) {}
-    BogusControlFlow(bool flag) : FunctionPass(ID) {this->flag = flag; BogusControlFlow();}
+    BogusControlFlow(bool flag) : FunctionPass(ID) {this->flag = flag; BogusControlFlow();
+  }
 
     /* runOnFunction
      *
@@ -125,6 +126,11 @@ namespace {
      * to the function. See header for more details.
      */
     virtual bool runOnFunction(Function &F){
+      const PassInfo* pass_info = lookupPassInfo(getPassID());
+      if ( pass_info && (pass_info->getPassArgument() == "boguscf") ) {
+        flag = true;
+      }
+      
       // Check if the percentage is correct
       if (ObfTimes <= 0) {
         errs()<<"BogusControlFlow application number -bcf_loop=x must be x > 0";
@@ -179,7 +185,10 @@ namespace {
           // Put all the function's block in a list
           std::list<BasicBlock *> basicBlocks;
           for (Function::iterator i=F.begin();i!=F.end();++i) {
-            basicBlocks.push_back(&*i);
+            BasicBlock *BB=&*i;
+            if(!BB->isEHPad() && !BB->isLandingPad()){
+                basicBlocks.push_back(BB);
+            }
           }
           DEBUG_WITH_TYPE("gen", errs() << "bcf: Iterating on the Function's Basic Blocks\n");
 
