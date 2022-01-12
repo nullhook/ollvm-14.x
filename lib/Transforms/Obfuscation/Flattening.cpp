@@ -15,6 +15,7 @@
 #include "llvm/Transforms/Scalar.h"
 #include "llvm/Transforms/Obfuscation/CryptoUtils.h"
 #include "llvm/Transforms/Utils.h"
+#include "llvm/IR/LegacyPassManager.h"
 
 #define DEBUG_TYPE "flattening"
 
@@ -42,6 +43,12 @@ Pass *llvm::createFlattening(bool flag) { return new Flattening(flag); }
 
 bool Flattening::runOnFunction(Function &F) {
   Function *tmp = &F;
+
+  const PassInfo* pass_info = lookupPassInfo(getPassID());
+  if ( pass_info && (pass_info->getPassArgument() == "flattening") ) {
+    flag = true;
+  }
+
   // Do we obfuscate
   if (toObfuscate(flag, tmp, "fla")) {
     if (flatten(tmp)) {
@@ -66,8 +73,10 @@ bool Flattening::flatten(Function *f) {
   // END OF SCRAMBLER
 
   // Lower switch
-  FunctionPass *lower = createLowerSwitchPass();
-  lower->runOnFunction(*f);
+  Module* CurrentModule = f->getParent();
+  legacy::FunctionPassManager FPM(CurrentModule);
+  FPM.add(createLowerSwitchPass());
+  FPM.run(*f);
 
   // Save all original BB
   for (Function::iterator i = f->begin(); i != f->end(); ++i) {
