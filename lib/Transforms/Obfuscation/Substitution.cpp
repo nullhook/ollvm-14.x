@@ -105,17 +105,23 @@ static RegisterPass<Substitution> X("substitution", "operators substitution");
 Pass *llvm::createSubstitution(bool flag) { return new Substitution(flag); }
 
 bool Substitution::runOnFunction(Function &F) {
-   // Check if the percentage is correct
-   if (ObfTimes <= 0) {
-     errs()<<"Substitution application number -sub_loop=x must be x > 0";
-	 return false;
-   }
+  const PassInfo* pass_info = lookupPassInfo(getPassID());
+  if ( pass_info && (pass_info->getPassArgument() == "substitution") ) {
+    flag = true;
+  }
+
+  // Check if the percentage is correct
+  if (ObfTimes <= 0) {
+    errs()<<"Substitution application number -sub_loop=x must be x > 0";
+    return false;
+  }
 
   Function *tmp = &F;
   // Do we obfuscate
   if (toObfuscate(flag, tmp, "sub")) {
+    errs() << "Running Substitution on " << F.getName() << "\n";
     substitute(tmp);
-	return true;
+	  return true;
   }
 
   return false;

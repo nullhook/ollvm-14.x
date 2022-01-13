@@ -134,16 +134,17 @@ namespace {
       // Check if the percentage is correct
       if (ObfTimes <= 0) {
         errs()<<"BogusControlFlow application number -bcf_loop=x must be x > 0";
-		return false;
+		    return false;
       }
 
       // Check if the number of applications is correct
       if ( !((ObfProbRate > 0) && (ObfProbRate <= 100)) ) {
         errs()<<"BogusControlFlow application basic blocks percentage -bcf_prob=x must be 0 < x <= 100";
-		return false;
+		    return false;
       }
       // If fla annotations
       if(toObfuscate(flag,&F,"bcf")) {
+        errs() << "Running BogusControlFlow on " << F.getName() << "\n";
         bogus(F);
         doF(*F.getParent());
         return true;
